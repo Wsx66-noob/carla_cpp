@@ -4,20 +4,29 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
-#pragma once// 防止头文件被多次包含
+// 这是一个预处理指令，用于防止头文件被多次包含
+#pragma once // 防止头文件被多次包含
 
-#include "carla/Debug.h"// 引入调试相关的头文件
+// 引入CARLA项目中的调试相关的头文件
+#include "carla/Debug.h" // 引入调试相关的头文件
 
-#include <boost/date_time/posix_time/posix_time_types.hpp>// 引入 Boost 的时间处理功能
+// 引入Boost库中的时间处理功能，特别是用于处理POSIX时间类型的功能
+#include <boost/date_time/posix_time/posix_time_types.hpp> // 引入 Boost 的时间处理功能
 
+// 引入C++标准库中的chrono库，用于时间、持续时间和时钟功能
 #include <chrono>
 
+// 定义一个名为carla的命名空间，用于封装相关的代码和标识符
 namespace carla {
 
-  /// Positive time duration up to milliseconds resolution. Automatically casts
-  /// between std::chrono::duration and boost::posix_time::time_duration.
+  /// 这是一个文档注释，说明接下来的time_duration类的功能
+  /// time_duration类表示一个正的时间持续期，精确到毫秒。
+  /// 它能够在std::chrono::duration和boost::posix_time::time_duration之间自动转换。
   class time_duration {
   public:
+    // 类的公有成员将在这里定义
+  };
+}
 // 静态成员函数，用于创建一个表示指定秒数的时间间隔
     static inline time_duration seconds(size_t timeout) {
       return std::chrono::seconds(timeout);
