@@ -14,16 +14,22 @@
 
 
   // 检查是否使用Clang或GCC编译器
+// 如果编译器是Clang或者GNU GCC，则进入这个条件编译块
 #elif defined(__clang__) || defined(__GNUC__)
-  // 如果定义了NDEBUG（即非调试模式），则定义LIBCARLA_FORCEINLINE宏为inline并添加always_inline属性 
+  // 如果定义了NDEBUG宏（通常在非调试模式下定义），则定义LIBCARLA_FORCEINLINE宏
+  // LIBCARLA_FORCEINLINE宏会使函数内联，并添加always_inline属性，强制编译器内联该函数
 #  if defined(NDEBUG)
 #    define LIBCARLA_FORCEINLINE inline __attribute__((always_inline))
-  // 否则，在非调试模式下，仅定义为inline
+  // 如果没有定义NDEBUG宏（即在调试模式下），则只将LIBCARLA_FORCEINLINE宏定义为inline
 #  else
 #    define LIBCARLA_FORCEINLINE inline
 #  endif // NDEBUG
-#  define LIBCARLA_NOINLINE __attribute__((noinline))  // 禁止内联
+  // 定义LIBCARLA_NOINLINE宏，使用__attribute__((noinline))属性来禁止编译器内联该函数
+#  define LIBCARLA_NOINLINE __attribute__((noinline))  
+
+// 对于其他编译器，发出警告提示编译器不支持
 #else
 #  warning Compiler not supported.  // 编译器不支持的警告
-#  define LIBCARLA_NOINLINE // 定义LIBCARLA_NOINLINE为空
+  // 定义LIBCARLA_NOINLINE宏为空，表示在这些编译器上不提供禁止内联的功能
+#  define LIBCARLA_NOINLINE 
 #endif
