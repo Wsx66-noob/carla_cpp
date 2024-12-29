@@ -21,31 +21,43 @@
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
-
+// 如果定义了PUGIXML_WCHAR_MODE宏，则包含wchar.h头文件
+// 这个宏通常用于支持宽字符（wchar_t）处理
 #ifdef PUGIXML_WCHAR_MODE
 #	include <wchar.h>
 #endif
 
+// 如果没有定义PUGIXML_NO_XPATH宏，则包含math.h和float.h头文件
+// 这些头文件通常用于XPath查询支持，提供数学函数和浮点数处理功能
 #ifndef PUGIXML_NO_XPATH
 #	include <math.h>
 #	include <float.h>
 #endif
 
+// 如果没有定义PUGIXML_NO_STL宏，则包含istream、ostream和string头文件
+// 这些头文件提供了C++标准模板库（STL）中的输入输出流和字符串类
 #ifndef PUGIXML_NO_STL
 #	include <istream>
 #	include <ostream>
 #	include <string>
 #endif
-
-// For placement new
+// 包含C++标准库中的new头文件，它声明了placement new运算符等内存分配函数
 #include <new>
 
+// 如果编译器是Clang（一个基于LLVM的C/C++/Objective-C编译器）
 #if defined(__clang__)
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wconversion"
-# pragma clang diagnostic ignored "-Wdouble-promotion"
-#endif
+    // 以下指令用于控制Clang编译器的诊断信息，即编译时的警告和错误提示
+    // 这些指令会将特定的警告暂时忽略，以避免代码中的某些特性触发编译器警告
 
+    // 保存当前的诊断状态，以便稍后可以恢复
+    # pragma clang diagnostic push
+
+    // 忽略"-Wconversion"警告，这个警告通常在类型转换可能会导致精度损失时出现
+    # pragma clang diagnostic ignored "-Wconversion"
+
+    // 忽略"-Wdouble-promotion"警告，这个警告通常在浮点数运算中隐式将float转换为double时出现
+    # pragma clang diagnostic ignored "-Wdouble-promotion"
+#endif
 // 如果代码是在Microsoft Visual C++编译器下编译的
 #ifdef _MSC_VER
     // 保存当前的警告状态，以便稍后恢复
