@@ -111,27 +111,35 @@ namespace adaptor {
   // -- Adaptors for boost::variant2::variant ----------------------------------
   // ===========================================================================
 
-  template<typename... Ts>
-  struct convert<boost::variant2::variant<Ts...>> {
+// 定义一个模板结构体，用于将boost::variant2::variant类型的对象从clmdep_msgpack::object转换
+template<typename... Ts>
+struct convert<boost::variant2::variant<Ts...>> {
 
-    const clmdep_msgpack::object &operator()(
-        const clmdep_msgpack::object &o,
-        boost::variant2::variant<Ts...> &v) const {
-      // 检查对象类型是否为数组
-      if (o.type != clmdep_msgpack::type::ARRAY) {
-        ::carla::throw_exception(clmdep_msgpack::type_error());
-      }
-      // 检查数组大小是否为 2
-      if (o.via.array.size != 2) {
-        ::carla::throw_exception(clmdep_msgpack::type_error());
-      }
-      // 获取索引
-      const auto index = o.via.array.ptr[0].as<uint64_t>();
-      copy_to_variant(index, o, v, std::make_index_sequence<sizeof...(Ts)>());
-      return o;
+  // 定义一个函数，它是msgpack对象到boost::variant2::variant的转换函数
+  const clmdep_msgpack::object &operator()(
+      const clmdep_msgpack::object &o,
+      boost::variant2::variant<Ts...> &v) const {
+    // 检查msgpack对象的类型是否为数组
+    if (o.type != clmdep_msgpack::type::ARRAY) {
+      // 如果不是数组，抛出类型错误异常
+      ::carla::throw_exception(clmdep_msgpack::type_error());
     }
+    // 检查数组的大小是否为2（通常用于存储类型索引和实际值）
+    if (o.via.array.size != 2) {
+      // 如果大小不是2，抛出类型错误异常
+      ::carla::throw_exception(clmdep_msgpack::type_error());
+    }
+    // 获取数组中的第一个元素，它应该是一个索引，用于确定variant中哪个类型将被使用
+    const auto index = o.via.array.ptr[0].as<uint64_t>();
+    // 使用索引和msgpack对象来复制值到variant对象中
+    copy_to_variant(index, o, v, std::make_index_sequence<sizeof...(Ts)>());
+    // 返回原始的msgpack对象
+    return o;
+  }
 
-  private:
+ private:
+  // 结构体的私有成员和函数将在这里定义
+};
 
     // 从对象中复制到变体的实现
     template <uint64_t I>
