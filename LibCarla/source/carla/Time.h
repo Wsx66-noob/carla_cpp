@@ -47,29 +47,42 @@ namespace carla {
           DEBUG_ASSERT(count >= 0);
           return static_cast<size_t>(count);
         }()) {}
-// 构造函数，接受一个 boost::posix_time::time_duration 类型的参数，将其转换为以毫秒为单位的时间间隔
-    time_duration(boost::posix_time::time_duration timeout)
-      : time_duration(std::chrono::milliseconds(timeout.total_milliseconds())) {}
-// 拷贝构造函数，使用默认实现
-    time_duration(const time_duration &) = default;
-    time_duration &operator=(const time_duration &) = default;
-// 将当前时间间隔转换为 boost::posix_time::time_duration 类型
-    boost::posix_time::time_duration to_posix_time() const {
-      return boost::posix_time::milliseconds(_milliseconds);
-    }
-// 将当前时间间隔转换为 std::chrono::milliseconds 类型
-    constexpr auto to_chrono() const {
-      return std::chrono::milliseconds(_milliseconds);
-    }
-// 类型转换运算符，将当前对象转换为 boost::posix_time::time_duration 类型
-    operator boost::posix_time::time_duration() const {
-      return to_posix_time();
-    }
-// 返回以毫秒为单位的时间值，不修改对象状态，保证不抛出异常
-    constexpr size_t milliseconds() const noexcept {
-      return _milliseconds;
-    }
+// 构造函数，接受一个 boost::posix_time::time_duration 类型的参数
+// 并将该参数转换为以毫秒为单位的时间间隔，然后初始化 time_duration 对象
+time_duration(boost::posix_time::time_duration timeout)
+  : time_duration(std::chrono::milliseconds(timeout.total_milliseconds())) {}
 
+// 拷贝构造函数，使用编译器提供的默认实现
+// 这意味着 time_duration 对象可以使用另一个 time_duration 对象进行初始化
+time_duration(const time_duration &) = default;
+
+// 拷贝赋值运算符，使用编译器提供的默认实现
+// 这意味着 time_duration 对象可以使用另一个 time_duration 对象进行赋值
+time_duration &operator=(const time_duration &) = default;
+
+// 将当前时间间隔转换为 boost::posix_time::time_duration 类型
+// 这个函数返回一个 boost::posix_time::time_duration 对象，代表相同的时间间隔
+boost::posix_time::time_duration to_posix_time() const {
+  return boost::posix_time::milliseconds(_milliseconds);
+}
+
+// 将当前时间间隔转换为 std::chrono::milliseconds 类型
+// 这个函数返回一个 std::chrono::milliseconds 对象，代表相同的时间间隔
+constexpr auto to_chrono() const {
+  return std::chrono::milliseconds(_milliseconds);
+}
+
+// 类型转换运算符，允许 time_duration 对象在需要 boost::posix_time::time_duration 类型时被隐式转换
+// 这个运算符返回一个 boost::posix_time::time_duration 对象，代表相同的时间间隔
+operator boost::posix_time::time_duration() const {
+  return to_posix_time();
+}
+
+// 返回以毫秒为单位的时间值
+// 不修改对象状态，保证不抛出异常（noexcept），返回值是 size_t 类型
+constexpr size_t milliseconds() const noexcept {
+  return _milliseconds;
+}
   private:
 // 存储时间间隔的毫秒数
     size_t _milliseconds;
