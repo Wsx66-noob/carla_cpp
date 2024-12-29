@@ -86,29 +86,41 @@ namespace detail {
 // 定义了一个名为 detail 的命名空间
 namespace detail {
 //// 定义一个线程局部的静态常量字符变量，用于标识或标记当前线程，其值默认为空字符（'\0'）
-  static thread_local const char thread_tag{};
+// 定义一个线程局部静态常量char变量，不初始化，其值未定义
+// thread_local关键字表示这个变量在每个线程中都有独立的实例
+static thread_local const char thread_tag{};
 
-  class SharedException : public std::exception {
-  public:
+// 定义一个名为SharedException的类，它继承自标准库中的std::exception类
+class SharedException : public std::exception {
+public:
+  // SharedException类的构造函数，无参数
+  // 创建一个std::runtime_error异常的shared_ptr，并初始化_exception成员变量
+  SharedException()
+    : _exception(std::make_shared<std::runtime_error>("uninitialized SharedException")) {}
 
-    SharedException()
-      : _exception(std::make_shared<std::runtime_error>("uninitialized SharedException")) {}
+  // SharedException类的构造函数，接受一个std::shared_ptr<std::exception>类型的参数
+  // 将传入的shared_ptr移动到_exception成员变量
+  SharedException(std::shared_ptr<std::exception> e)
+    : _exception(std::move(e)) {}
 
-    SharedException(std::shared_ptr<std::exception> e)
-      : _exception(std::move(e)) {}
+  // 重写std::exception的what()函数，返回异常信息
+  // noexcept表示这个函数不会抛出异常
+  const char *what() const noexcept override {
+    return _exception->what();
+  }
 
-    const char *what() const noexcept override {
-      return _exception->what();
-    }
+  // 提供一个函数，返回内部存储的std::exception的shared_ptr
+  std::shared_ptr<std::exception> GetException() const {
+    return _exception;
+  }
 
-    std::shared_ptr<std::exception> GetException() const {
-      return _exception;
-    }
+private:
+  // SharedException类的私有成员变量，存储一个指向std::exception的shared_ptr
+  std::shared_ptr<std::exception> _exception;
+};
 
-  private:
-
-    std::shared_ptr<std::exception> _exception;
-  };
+// 结束detail命名空间（虽然代码中没有显示开始detail命名空间，但根据闭合大括号可以推断）
+} // namespace detail
 
 } // namespace detail
 
