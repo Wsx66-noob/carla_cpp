@@ -20,27 +20,38 @@
 #  endif
 #endif
 
-// 检测是否支持JPEG格式
-#ifndef LIBCARLA_IMAGE_WITH_JPEG_SUPPORT
-#  if defined(__has_include) && __has_include("jpeglib.h")  // 检查是否能找到jpeglib.h头文件
-#    define LIBCARLA_IMAGE_WITH_JPEG_SUPPORT true  // 定义为支持
-#  else
-#    define LIBCARLA_IMAGE_WITH_JPEG_SUPPORT false // 定义为不支持
-#  endif
-#endif
+// 如果定义了LIBCARLA_IMAGE_WITH_JPEG_SUPPORT宏，表示支持JPEG格式的图像处理
+#if LIBCARLA_IMAGE_WITH_JPEG_SUPPORT
 
-// 检测是否支持TIFF格式
-#ifndef LIBCARLA_IMAGE_WITH_TIFF_SUPPORT
-#  if defined(__has_include) && __has_include("tiffio.h")  // 检查是否能找到tiffio.h头文件
-#    define LIBCARLA_IMAGE_WITH_TIFF_SUPPORT true  // 定义为支持
-#  else
-#    define LIBCARLA_IMAGE_WITH_TIFF_SUPPORT false // 定义为不支持
-#  endif
-#endif
+    // 定义一个静态常量函数，用于获取默认的文件扩展名
+    static constexpr const char *get_default_extension() {
+      // 返回“jpeg”作为默认的文件扩展名
+      return "jpeg";
+    }
 
-#if defined(__clang__)  // 如果使用的是Clang编译器
-#  pragma clang diagnostic push  // 保存当前的诊断状态
-#  pragma clang diagnostic ignored "-Wunused-parameter"  // 忽略未使用的参数警告
+    // 定义一个模板函数，用于检查给定的字符串是否匹配JPEG文件的扩展名
+    template <typename Str>
+    static bool match_extension(const Str &str) {
+      // 判断字符串是否以默认扩展名“jpeg”结尾，或者以“jpg”结尾
+      return StringUtil::EndsWith(str, get_default_extension()) ||
+             StringUtil::EndsWith(str, "jpg");
+    }
+
+    // 定义一个模板函数，用于从文件中读取JPEG图像
+    template <typename Str, typename ImageT>
+    static void read_image(Str &&in_filename, ImageT &image) {
+      // 使用boost库的gil模块读取JPEG格式的图像
+      boost::gil::read_image(std::forward<Str>(in_filename), image, boost::gil::jpeg_tag());
+    }
+
+    // 定义一个模板函数，用于将视图写入JPEG格式的文件
+    // 这个函数只在支持写入JPEG视图的情况下可用
+    template <typename Str, typename ViewT>
+    static typename std::enable_if<is_write_supported<ViewT, boost::gil::jpeg_tag>::value>::type
+    write_view(Str &&out_filename, const ViewT &view) {
+      // 使用boost库的gil模块写入JPEG视图
+      boost::gil::write_view(std::forward<Str>(out_filename), view, boost::gil::jpeg_tag());
+    }
 #endif
 
 #if LIBCARLA_IMAGE_WITH_PNG_SUPPORT == true  // 如果支持PNG格式
