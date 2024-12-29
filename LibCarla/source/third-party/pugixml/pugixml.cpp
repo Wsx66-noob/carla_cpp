@@ -116,7 +116,10 @@
 
 //内联控制
 #if defined(_MSC_VER) && _MSC_VER >= 1300
-#	define PUGI__NO_INLINE __declspec(noinline)
+#	define PUGI__NO_INLINE __declspec(noinline)//这个宏用于告诉编译器不要内联某个函数。内联是一个优化技术，编译器会将函数体直接插入到每个函数调用的地方，以减少函数调用的开销。但是，如果一个函数过于复杂或者编译器认为内联不会带来性能提升，编译器可能会忽略内联请求。
+如果编译器是微软的MSVC并且版本号大于或等于1300（即Visual Studio 2003及以后版本），则使用__declspec(noinline)。
+如果编译器是GNU GCC，则使用__attribute__((noinline))。
+对于其他编译器，PUGI__NO_INLINE宏不会产生任何效果。
 #elif defined(__GNUC__)
 #	define PUGI__NO_INLINE __attribute__((noinline))
 #else
@@ -125,19 +128,23 @@
 
 //分支权重控制
 #if defined(__GNUC__) && !defined(__c2__)
-#	define PUGI__UNLIKELY(cond) __builtin_expect(cond, 0)
+#	define PUGI__UNLIKELY(cond) __builtin_expect(cond, 0)//这个宏用于告诉编译器某个条件（cond）不太可能为真。这可以帮助编译器进行分支预测优化。
+如果编译器是GNU GCC并且不是C2编译器（C2是一个较老的编译器），则使用__builtin_expect(cond, 0)，这会告诉编译器cond更有可能是假。
+对于其他编译器，PUGI__UNLIKELY(cond)直接返回cond的值
 #else
 #	define PUGI__UNLIKELY(cond) (cond)
 #endif
 
 //简单静态断言
-#define PUGI__STATIC_ASSERT(cond) { static const char condition_failed[(cond) ? 1 : -1] = {0}; (void)condition_failed[0]; }
+#define PUGI__STATIC_ASSERT(cond) { static const char condition_failed[(cond) ? 1 : -1] = {0}; (void)condition_failed[0]; }//这是一个简单的静态断言宏，用于在编译时检查某个条件是否为真。如果条件为假，编译器会报错。
+它通过定义一个大小为-1的数组（如果cond为假）来触发编译错误，因为数组的大小不能为负数。
 
 // Digital Mars C++ bug workaround for passing char loaded from memory via stack
 #ifdef __DMC__
 #	define PUGI__DMC_VOLATILE volatile
 #else
-#	define PUGI__DMC_VOLATILE
+#	define PUGI__DMC_VOLATILE//这个宏用于处理Digital Mars C++编译器的一个bug，该bug涉及到从内存加载字符并通过栈传递时的volatile关键字问题。
+如果是Digital Mars C++编译器，则PUGI__DMC_VOLATILE会被定义为volatile，否则不会产生任何效果
 #endif
 
 // Integer sanitizer workaround; we only apply this for clang since gcc8 has no_sanitize but not unsigned-integer-overflow and produces "attribute directive ignored" warnings
