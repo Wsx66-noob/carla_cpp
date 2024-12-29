@@ -6,12 +6,18 @@
 // This work is licensed under the terms of the MIT license.
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
+// 这是一个预处理指令，用于防止头文件被多次包含
 #pragma once
 
+// 定义一个名为carla的命名空间，用于封装相关的代码和标识符
 namespace carla {
 
-  constexpr const char *version() {// 函数体只包含一个返回语句，返回一个字符串字面量
+  // 定义一个constexpr函数，用于返回CARLA的版本号
+  // 这个函数是constexpr的，意味着它在编译时就可以被调用，并且返回值可以用于常量表达式中
+  constexpr const char *version() {
+    // 返回一个字符串字面量，这里使用`${CARLA_VERSION}`作为版本号的占位符
+    // 实际的版本号应该在编译时由构建系统替换这个占位符
     return "${CARLA_VERSION}";
   }
 
-} // namespace carla
+} // 结束carla命名空间
