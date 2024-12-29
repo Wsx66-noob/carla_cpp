@@ -143,23 +143,31 @@ private:
     return boost::variant2::get<T>(std::move(r.value));
   }
 
-  // /// 设置值并通知所有等待的线程
-  template <typename T>
-  template <typename T2>
-  void RecurrentSharedFuture<T>::SetValue(const T2 &value) {
-    std::lock_guard<std::mutex> lock(_mutex);
-    for (auto &pair : _map) {
-      pair.second.should_wait = false;  // 将每个线程设置为不需要等待
-      pair.second.value = value;        // 设置值
-    }
-    _cv.notify_all();  // 通知所有线程
+  // 设置值并通知所有等待的线程
+// 这是一个模板函数，允许为不同类型的RecurrentSharedFuture设置值
+template <typename T>
+template <typename T2>
+void RecurrentSharedFuture<T>::SetValue(const T2 &value) {
+  // 使用std::lock_guard来自动管理互斥锁的锁定和解锁
+  std::lock_guard<std::mutex> lock(_mutex);
+  // 遍历_map中的所有线程对应的值对
+  for (auto &pair : _map) {
+    // 将每个线程的should_wait标志设置为false，表示不再需要等待
+    pair.second.should_wait = false;
+    // 为每个线程设置新的值
+    pair.second.value = value;
   }
- // 设置一个异常，并通知所有等待的线程
-  template <typename T>
-  template <typename ExceptionT>
-  void RecurrentSharedFuture<T>::SetException(ExceptionT &&e) {
-  // 将异常封装为一个共享指针，并将其设置为当前值
-    SetValue(SharedException(std::make_shared<ExceptionT>(std::forward<ExceptionT>(e))));
-  }
+  // 通知所有等待的线程，它们可以继续执行了
+  _cv.notify_all();
+}
 
-} // namespace carla
+// 设置一个异常，并通知所有等待的线程
+// 这是一个模板函数，允许为不同类型的异常设置RecurrentSharedFuture的异常状态
+template <typename T>
+template <typename ExceptionT>
+void RecurrentSharedFuture<T>::SetException(ExceptionT &&e) {
+  // 将传入的异常封装为一个std::shared_ptr，然后使用SetValue设置为当前值
+  SetValue(SharedException(std::make_shared<ExceptionT>(std::forward<ExceptionT>(e))));
+}
+
+} // 结束carla命名空间
